@@ -63,6 +63,7 @@ import org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl;
 import org.apache.orc.util.BloomFilter;
 import org.apache.orc.DataReader;
 import org.apache.orc.RecordReader;
+import org.apache.orc.TestVectorOrcFile;
 import org.apache.orc.TypeDescription;
 import org.apache.orc.Writer;
 import org.apache.orc.impl.RecordReaderImpl.Location;
@@ -81,8 +82,6 @@ import org.apache.orc.util.BloomFilterIO;
 import org.apache.orc.util.BloomFilterUtf8;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.MockSettings;
-import org.mockito.Mockito;
 
 public class TestRecordReaderImpl {
 
@@ -99,6 +98,44 @@ public class TestRecordReaderImpl {
     assertEquals(3, RecordReaderImpl.findColumns(evo, "e"));
   }
 
+  @Test
+  public void testForcePositionalEvolution() throws Exception {
+    Configuration conf = new Configuration();
+
+    Path oldFilePath = new Path(TestVectorOrcFile.getFileFromClasspath("orc-file-11-format.orc"));
+    Reader reader = OrcFile.createReader(oldFilePath,
+        OrcFile.readerOptions(conf).filesystem(FileSystem.getLocal(conf)));
+
+    TypeDescription fileSchema =
+        TypeDescription.fromString("struct<col0:boolean,col1:tinyint,col2:smallint,"
+            + "col3:int,col4:bigint,col5:float,col6:double,col7:"
+            + "binary,col8:string,col9:struct<list:array<struct<int1:int,"
+            + "string1:string>>>,col10:array<struct<int1:int,string1:string>>,"
+            + "col11:map<string,struct<int1:int,string1:string>>,col12:timestamp,"
+            + "col13:decimal(38,10)>");
+
+    SchemaEvolution evo = new SchemaEvolution(fileSchema, reader.getSchema(),
+        new Reader.Options(conf).forcePositionalEvolution(true));
+    assertEquals(4, RecordReaderImpl.findColumns(evo, "int1"));
+
+    evo = new SchemaEvolution(fileSchema, reader.getSchema(),
+        new Reader.Options(conf).forcePositionalEvolution(false));
+    assertEquals(-1, RecordReaderImpl.findColumns(evo, "int1"));
+
+    TypeDescription acidSchema = SchemaEvolution.createEventSchema(fileSchema);
+
+    SchemaEvolution evoAcid =
+        new SchemaEvolution(acidSchema, reader.getSchema(),
+            new Reader.Options(conf).forcePositionalEvolution(true));
+    // ahead by 6 for 1 struct + 5 for row-id
+    assertEquals(6+4, RecordReaderImpl.findColumns(evoAcid, "int1"));
+
+    evoAcid =
+        new SchemaEvolution(acidSchema, reader.getSchema(),
+            new Reader.Options(conf).forcePositionalEvolution(false));
+    assertEquals(-1, RecordReaderImpl.findColumns(evoAcid, "int1"));
+  }
+
   /**
    * Create a predicate leaf. This is used by another test.
    */
@@ -112,7 +149,7 @@ public class TestRecordReaderImpl {
   }
 
   // can add .verboseLogging() to cause Mockito to log invocations
-  private final MockSettings settings = Mockito.withSettings().verboseLogging();
+  //private final MockSettings settings = Mockito.withSettings().verboseLogging();
 
   static class BufferInStream
       extends InputStream implements PositionedReadable, Seekable {
@@ -204,7 +241,7 @@ public class TestRecordReaderImpl {
     footer.writeTo(buffer);
     ps.writeTo(buffer);
     buffer.write(ps.getSerializedSize());
-    FileSystem fs = mock(FileSystem.class, settings);
+    FileSystem fs = mock(FileSystem.class);
     FSDataInputStream file =
         new FSDataInputStream(new BufferInStream(buffer.getData(),
             buffer.getLength()));
