@@ -256,7 +256,7 @@ public class RecordReaderImpl implements RecordReader {
               .withCompression(fileReader.compressionKind)
               .withFileSystem(fileReader.getFileSystem())
               .withPath(fileReader.path)
-              .withTypeCount(types.size())
+              .withTypeCount(evolution.getPositionalColumns() ? evolution.getReaderIncluded().length : types.size())
               .withMaxDiskRangeChunkLimit(maxDiskRangeChunkLimit)
               .withZeroCopy(zeroCopy);
       FSDataInputStream file = fileReader.takeFile();
@@ -283,9 +283,11 @@ public class RecordReaderImpl implements RecordReader {
         readerContext);
 
     this.fileIncluded = evolution.getFileIncluded();
-    indexes = new OrcProto.RowIndex[types.size()];
-    bloomFilterIndices = new OrcProto.BloomFilterIndex[types.size()];
-    bloomFilterKind = new OrcProto.Stream.Kind[types.size()];
+
+    int columnCount = evolution.getPositionalColumns() ? evolution.getReaderIncluded().length : types.size();
+    indexes = new OrcProto.RowIndex[columnCount];
+    bloomFilterIndices = new OrcProto.BloomFilterIndex[columnCount];
+    bloomFilterKind = new OrcProto.Stream.Kind[columnCount];
 
     try {
       advanceToNextRow(reader, 0L, true);
@@ -910,7 +912,8 @@ public class RecordReaderImpl implements RecordReader {
       this.rowIndexStride = rowIndexStride;
       // included will not be null, row options will fill the array with
       // trues if null
-      sargColumns = new boolean[evolution.getFileIncluded().length];
+      sargColumns = new boolean[evolution.getPositionalColumns()
+        ? evolution.getReaderIncluded().length : evolution.getFileIncluded().length];
       for (int i : filterColumns) {
         // filter columns may have -1 as index which could be partition
         // column in SARG.
@@ -953,7 +956,13 @@ public class RecordReaderImpl implements RecordReader {
             leafValues[pred] = exceptionAnswer[pred];
           } else {
             if (indexes[columnIx] == null) {
-              throw new AssertionError("Index is not populated for " + columnIx);
+              // this can happen when using force positional evolution when and e.g. reader schema
+              // is aware of a new column which is not present in the file
+              if (LOG.isDebugEnabled()){
+                LOG.debug("Index is not populated for {}, ignoring while evaluating sargs",columnIx);
+              }
+              leafValues[pred] = TruthValue.YES_NO_NULL;
+              continue;
             }
             OrcProto.RowIndexEntry entry = indexes[columnIx].getEntry(rowGroup);
             if (entry == null) {
