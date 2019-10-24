@@ -149,7 +149,7 @@ public class TestRecordReaderImpl {
   }
 
   // can add .verboseLogging() to cause Mockito to log invocations
-  private final MockSettings settings = Mockito.withSettings().verboseLogging();
+  //private final MockSettings settings = Mockito.withSettings().verboseLogging();
 
   static class BufferInStream
       extends InputStream implements PositionedReadable, Seekable {
@@ -241,7 +241,7 @@ public class TestRecordReaderImpl {
     footer.writeTo(buffer);
     ps.writeTo(buffer);
     buffer.write(ps.getSerializedSize());
-    FileSystem fs = mock(FileSystem.class, settings);
+    FileSystem fs = mock(FileSystem.class);
     FSDataInputStream file =
         new FSDataInputStream(new BufferInStream(buffer.getData(),
             buffer.getLength()));
