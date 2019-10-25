@@ -62,6 +62,7 @@ import org.apache.hadoop.hive.ql.io.sarg.SearchArgumentFactory;
 import org.apache.hadoop.hive.ql.io.sarg.SearchArgumentImpl;
 import org.apache.orc.util.BloomFilter;
 import org.apache.orc.DataReader;
+import org.apache.orc.OrcConf;
 import org.apache.orc.RecordReader;
 import org.apache.orc.TestVectorOrcFile;
 import org.apache.orc.TypeDescription;
@@ -2137,6 +2138,47 @@ public class TestRecordReaderImpl {
     assertEquals(true, rows[2]);
     assertEquals(1, applier.getExceptionCount()[0]);
     assertEquals(0, applier.getExceptionCount()[1]);
+  }
+
+  @Test
+  public void testPositionalEvolutionAddColumnPPD() throws IOException {
+    Configuration conf = new Configuration();
+
+    Reader.Options opts = new Reader.Options();
+    opts.forcePositionalEvolution(true);
+
+    TypeDescription file = TypeDescription.fromString("struct<x:int>");
+    // new column added on reader side
+    TypeDescription read = TypeDescription.fromString("struct<x:int,y:boolean>");
+    opts.include(includeAll(read));
+
+    SchemaEvolution evo = new SchemaEvolution(file, read, opts);
+
+    SearchArgument sarg = SearchArgumentFactory.newBuilder().startAnd()
+        .equals("y", PredicateLeaf.Type.BOOLEAN, true).end().build();
+
+    RecordReaderImpl.SargApplier applier =
+        new RecordReaderImpl.SargApplier(sarg, 1000, evo, OrcFile.WriterVersion.ORC_135, false);
+
+    OrcProto.StripeInformation stripe =
+        OrcProto.StripeInformation.newBuilder().setNumberOfRows(4000).build();
+
+    OrcProto.RowIndex[] indexes = new OrcProto.RowIndex[3];
+    indexes[1] = OrcProto.RowIndex.newBuilder().addEntry(createIndexEntry(0L, 10L)).build(); // index for original x column
+    indexes[2] = null; // no-op, just for clarifying that new reader column doesn't have an index
+
+    List<OrcProto.ColumnEncoding> encodings = new ArrayList<>();
+    encodings.add(OrcProto.ColumnEncoding.newBuilder().setKind(OrcProto.ColumnEncoding.Kind.DIRECT).build());
+
+    boolean[] rows = applier.pickRowGroups(new ReaderImpl.StripeInformationImpl(stripe),
+        indexes, null, encodings, null, false);
+  }
+
+  private boolean[] includeAll(TypeDescription readerType) {
+    int numColumns = readerType.getMaximumId() + 1;
+    boolean[] result = new boolean[numColumns];
+    Arrays.fill(result, true);
+    return result;
   }
 
   @Test
