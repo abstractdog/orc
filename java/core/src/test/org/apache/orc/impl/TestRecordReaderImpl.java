@@ -18,9 +18,9 @@
 
 package org.apache.orc.impl;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -68,6 +68,7 @@ import org.apache.orc.TestVectorOrcFile;
 import org.apache.orc.TypeDescription;
 import org.apache.orc.Writer;
 import org.apache.orc.impl.RecordReaderImpl.Location;
+import org.apache.orc.impl.RecordReaderImpl.SargApplier;
 import org.apache.hadoop.hive.ql.io.sarg.PredicateLeaf;
 import org.apache.hadoop.hive.ql.io.sarg.SearchArgument.TruthValue;
 import org.apache.hadoop.hive.serde2.io.DateWritable;
@@ -2172,6 +2173,7 @@ public class TestRecordReaderImpl {
 
     boolean[] rows = applier.pickRowGroups(new ReaderImpl.StripeInformationImpl(stripe),
         indexes, null, encodings, null, false);
+    assertEquals(SargApplier.READ_ALL_RGS, rows); //cannot filter for new column, return all rows
   }
 
   private boolean[] includeAll(TypeDescription readerType) {
