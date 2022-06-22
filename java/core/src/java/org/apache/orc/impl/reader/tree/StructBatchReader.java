@@ -60,7 +60,7 @@ public class StructBatchReader extends BatchReader {
         // are being processed then we should reset the parent e.g. PARENT_FILTER during FOLLOWERS
         // read phase.
         colVector.reset();
-        colVector.ensureSize(batchSize, false);
+        child.ensureSize(colVector, batchSize);
       }
       child.nextVector(colVector, null, batchSize, batch, readPhase);
     }

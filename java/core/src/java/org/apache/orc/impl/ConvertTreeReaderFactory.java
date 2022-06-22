@@ -368,6 +368,11 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       Integer schemaLevel = numericTypes.get(readerType.getCategory());
       return (schemaLevel.intValue() < fileLevel.intValue());
     }
+
+    @Override
+    public void ensureSize(ColumnVector vector, int batchSize) {
+      super.ensureSize(vector, batchSize);
+    }
   }
 
   private static TypeReader createFromInteger(int columnId,
@@ -470,6 +475,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(doubleColVector, longColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(doubleColVector, batchSize);
+    }
   }
 
   public static class AnyIntegerFromDecimalTreeReader extends ConvertTreeReader {
@@ -556,6 +567,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(decimalColVector, longColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(decimalColVector, batchSize);
+    }
   }
 
   public static class AnyIntegerFromStringGroupTreeReader extends ConvertTreeReader {
@@ -597,6 +614,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(bytesColVector, longColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(bytesColVector, batchSize);
+    }
   }
 
   public static class AnyIntegerFromTimestampTreeReader extends ConvertTreeReader {
@@ -633,6 +656,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(timestampColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(timestampColVector, longColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(timestampColVector, batchSize);
     }
   }
 
@@ -674,6 +703,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(longColVector, doubleColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
+    }
   }
 
   public static class DoubleFromDecimalTreeReader extends ConvertTreeReader {
@@ -711,6 +746,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(decimalColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(decimalColVector, doubleColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(decimalColVector, batchSize);
     }
   }
 
@@ -751,6 +792,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(bytesColVector, doubleColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(bytesColVector, batchSize);
+    }
   }
 
   public static class DoubleFromTimestampTreeReader extends ConvertTreeReader {
@@ -788,6 +835,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(timestampColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(timestampColVector, doubleColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(timestampColVector, batchSize);
     }
   }
 
@@ -854,6 +907,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(longColVector, decimalColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
+    }
   }
 
   public static class DecimalFromDoubleTreeReader extends ConvertTreeReader {
@@ -902,6 +961,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(doubleColVector, decimalColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(doubleColVector, batchSize);
+    }
   }
 
   public static class DecimalFromStringGroupTreeReader extends ConvertTreeReader {
@@ -945,6 +1010,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(bytesColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(bytesColVector, decimalColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(bytesColVector, batchSize);
     }
   }
 
@@ -995,6 +1066,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(timestampColVector, decimalColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(timestampColVector, batchSize);
+    }
   }
 
   public static class DecimalFromDecimalTreeReader extends ConvertTreeReader {
@@ -1041,6 +1118,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(fileDecimalColVector, decimalColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(fileDecimalColVector, batchSize);
+    }
   }
 
   public static class StringGroupFromAnyIntegerTreeReader extends ConvertTreeReader {
@@ -1076,6 +1159,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(longColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(longColVector, bytesColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
     }
   }
 
@@ -1139,6 +1228,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(doubleColVector, bytesColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(doubleColVector, batchSize);
+    }
   }
 
 
@@ -1188,6 +1283,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(decimalColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(decimalColVector, bytesColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(decimalColVector, batchSize);
     }
   }
 
@@ -1316,6 +1417,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(timestampColVector, bytesColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(timestampColVector, batchSize);
+    }
   }
 
   public static class StringGroupFromDateTreeReader extends ConvertTreeReader {
@@ -1354,6 +1461,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       fromReader.nextVector(longColVector, isNull, batchSize, filterContext, readPhase);
 
       convertVector(longColVector, bytesColVector, batchSize);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
     }
   }
 
@@ -1445,6 +1558,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(inBytesColVector, outBytesColVector, batchSize);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(inBytesColVector, batchSize);
+    }
   }
 
   public static class TimestampFromAnyIntegerTreeReader extends ConvertTreeReader {
@@ -1491,6 +1610,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(longColVector, timestampColVector, batchSize);
       timestampColVector.changeCalendar(useProlepticGregorian, true);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
     }
   }
 
@@ -1554,6 +1679,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       convertVector(doubleColVector, timestampColVector, batchSize);
       timestampColVector.changeCalendar(useProlepticGregorian, true);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(doubleColVector, batchSize);
+    }
   }
 
   public static class TimestampFromDecimalTreeReader extends ConvertTreeReader {
@@ -1616,6 +1747,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       convertVector(decimalColVector, timestampColVector, batchSize);
       timestampColVector.changeCalendar(useProlepticGregorian, true);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(decimalColVector, batchSize);
+    }
   }
 
   public static class TimestampFromStringGroupTreeReader extends ConvertTreeReader {
@@ -1674,6 +1811,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
       convertVector(bytesColVector, timestampColVector, batchSize);
       timestampColVector.changeCalendar(useProlepticGregorian, false);
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(bytesColVector, batchSize);
+    }
   }
 
   public static class TimestampFromDateTreeReader extends ConvertTreeReader {
@@ -1717,6 +1860,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
 
       convertVector(longColVector, timestampColVector, batchSize);
       timestampColVector.changeCalendar(useProlepticGregorian, false);
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(longColVector, batchSize);
     }
   }
 
@@ -1773,6 +1922,13 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
         dateColumnVector.changeCalendar(useProlepticGregorian, false);
       }
     }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(bytesColVector, batchSize);
+      super.ensureSize(dateColumnVector, batchSize);
+    }
   }
 
   public static class DateFromTimestampTreeReader extends ConvertTreeReader {
@@ -1821,6 +1977,12 @@ public class ConvertTreeReaderFactory extends TreeReaderFactory {
         ((DateColumnVector) longColVector)
             .changeCalendar(useProlepticGregorian, false);
       }
+    }
+
+    @Override
+    public void ensureSize(ColumnVector previous, int batchSize) {
+      super.ensureSize(previous, batchSize);
+      super.ensureSize(timestampColVector, batchSize);
     }
   }
 

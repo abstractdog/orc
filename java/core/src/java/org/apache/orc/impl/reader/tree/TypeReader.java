@@ -44,6 +44,15 @@ public interface TypeReader {
                   FilterContext filterContext,
                   ReadPhase readPhase) throws IOException;
 
+  /**
+   * Ensures the size of a vector, and gives the power to TreeReader subclasses to
+   * ensure the size of any other inner/intermediate vectors which are in use (e.g. in ConvertTreeReaders).
+   *
+   * @param vector The ColumnVector object
+   * @param batchSize Size of the column vector
+   */
+  void ensureSize(ColumnVector vector, int batchSize);
+
   int getColumnId();
 
   ReaderCategory getReaderCategory();

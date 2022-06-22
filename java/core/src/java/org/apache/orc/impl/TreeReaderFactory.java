@@ -390,6 +390,13 @@ public class TreeReaderFactory {
       }
     }
 
+    @Override
+    public void ensureSize(ColumnVector vector, int batchSize) {
+      if (vector != null) {
+        vector.ensureSize(batchSize, false);
+      }
+    }
+
     public BitFieldReader getPresent() {
       return present;
     }
